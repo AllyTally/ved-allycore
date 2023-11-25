@@ -27,7 +27,7 @@ for t = 1, #toolnames do]],
 	},
 	["func"] =
 	{
-		{ 
+		{
 			find = [[
 local max_scroll = 368
 ]],
@@ -47,6 +47,8 @@ elseif love.mouse.isDown("l") and not mousepressed then]],
 			replace = [[
 elseif love.mouse.isDown("l") and AC_CUSTOM_TOOLS[selectedtool] then
 	AC_CUSTOM_TOOLS[selectedtool].use(atx, aty, roomx, roomy)
+elseif love.mouse.isDown("r") and AC_CUSTOM_TOOLS[selectedtool] then
+	AC_CUSTOM_TOOLS[selectedtool].erase(atx, aty, roomx, roomy)
 elseif love.mouse.isDown("l") and not mousepressed then
 ]],
 			ignore_error = false,

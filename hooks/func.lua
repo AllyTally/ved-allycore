@@ -1,5 +1,4 @@
-
-function AC_register_tool(name, short_id, hotkey, entity_id, tool_size, use_callback, icon_path)
+function AC_register_tool(name, short_id, hotkey, entity_id, tool_size, use_callback, icon_path, erase_callback)
     table.insert(toolnames, name)
     table.insert(subtoolnames, {})
     table.insert(subtoolimgs, {})
@@ -7,14 +6,15 @@ function AC_register_tool(name, short_id, hotkey, entity_id, tool_size, use_call
         table.insert(entitytooltoid, entity_id)
     end
 
-	table.insert(toolimg, love.graphics.newImage(icon_path .. ".png"))
-	table.insert(toolimgicon, love.image.newImageData(icon_path .. "_on.png"))
+    table.insert(toolimg, love.graphics.newImage(icon_path .. ".png"))
+    table.insert(toolimgicon, love.image.newImageData(icon_path .. "_on.png"))
 
     table.insert(toolshortcuts, hotkey)
 
     AC_CUSTOM_TOOLS[#toolnames] = {
         cursor = tool_size,
-        use = use_callback
+        use = use_callback,
+        erase = erase_callback or function() end
     }
 
     return #toolnames
@@ -32,7 +32,8 @@ function AC_register_entity_menu_handler(handler)
     table.insert(AC_CREATE_ENTITY_MENU_HOOKS, handler)
 end
 
-function AC_DRAW_ENTITY(entity, type, x, y, k, interact, offsetx, offsety, myroomx, myroomy, scriptname_args, nthscriptbox)
+function AC_DRAW_ENTITY(entity, type, x, y, k, interact, offsetx, offsety, myroomx, myroomy, scriptname_args,
+                        nthscriptbox)
     AC_SCRIPTNAME_SHOWN = false
 
     for i = 1, #AC_DRAW_ENTITY_HOOKS do
@@ -55,7 +56,7 @@ function AC_CREATE_ENTITY_MENU(type)
 end
 
 function AC_ON_CLICK(atx, aty)
-    local mouse_x, mouse_y = (getlockablemouseX()-screenoffset), getlockablemouseY()
+    local mouse_x, mouse_y = (getlockablemouseX() - screenoffset), getlockablemouseY()
 
     for i = 1, #AC_ON_CLICK_HOOKS do
         local v = AC_ON_CLICK_HOOKS[i]
@@ -74,26 +75,26 @@ function string:split(sSeparator, nMax, bRegexp)
     local aRecord = {}
 
     if self:len() > 0 then
-       local bPlain = not bRegexp
-       nMax = nMax or -1
+        local bPlain = not bRegexp
+        nMax = nMax or -1
 
-       local nField, nStart = 1, 1
-       local nFirst,nLast = self:find(sSeparator, nStart, bPlain)
-       while nFirst and nMax ~= 0 do
-          aRecord[nField] = self:sub(nStart, nFirst-1)
-          nField = nField+1
-          nStart = nLast+1
-          nFirst,nLast = self:find(sSeparator, nStart, bPlain)
-          nMax = nMax-1
-       end
-       aRecord[nField] = self:sub(nStart)
+        local nField, nStart = 1, 1
+        local nFirst, nLast = self:find(sSeparator, nStart, bPlain)
+        while nFirst and nMax ~= 0 do
+            aRecord[nField] = self:sub(nStart, nFirst - 1)
+            nField = nField + 1
+            nStart = nLast + 1
+            nFirst, nLast = self:find(sSeparator, nStart, bPlain)
+            nMax = nMax - 1
+        end
+        aRecord[nField] = self:sub(nStart)
     end
 
     return aRecord
 end
 
 function AC_table_array_contains(tbl, value)
-    for _,v in ipairs(tbl) do
+    for _, v in ipairs(tbl) do
         if v == value then
             return true
         end
@@ -110,7 +111,7 @@ function AC_table_equals(tbl1, tbl2)
     if #tbl1 ~= #tbl2 then
         return false
     end
-    for i,v in ipairs(tbl1) do
+    for i, v in ipairs(tbl1) do
         if v ~= tbl2[i] then
             if type(v) == "table" then
                 if not AC_table_equals(v, tbl2[i]) then
@@ -125,8 +126,8 @@ function AC_table_equals(tbl1, tbl2)
 end
 
 function AC_add_internal_script(name, contents, replace)
-	internalscript = true
-	outpost_add_script(name, contents, replace)
+    internalscript = true
+    outpost_add_script(name, contents, replace)
     internalscript = false
 end
 
@@ -138,4 +139,8 @@ function AC_add_script(name, contents, replace)
     if not table.contains(scriptnames, name) then
         table.insert(scriptnames, name)
     end
+end
+
+function AC_script_exists(name)
+    return table.contains(scriptnames, name)
 end
